@@ -1,25 +1,46 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from 'react';
+import Header from './components/Header';
+import Categories from './components/Categories';
+import MainContent from './components/MainContent';
+import Recommendation from './pages/Recommendation';
+import About from './pages/About';
+import { BrowserRouter,Route, Routes } from 'react-router-dom';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+	const [animeList, SetAnimeList] = useState([]);
+	const [search, SetSearch] = useState("");
+
+	// this will grab the submission form
+	const handleSearch = e => {
+		e.preventDefault();
+		// console.log(search);
+		fetchAnime(search)
+	}
+
+	const fetchAnime = async (query) => {
+		const temp = await fetch (`https://api.jikan.moe/v4/anime?q=${query}&oreder_by=title&sort=asc&limit=17`);
+		// convert into json file
+		const resulteData = await temp.json();
+		
+		console.log(resulteData.data);
+		// store it in AnimeList
+		SetAnimeList(resulteData.data);
+	}
+
+	return (
+		<div className="App">
+			<Header handleSearch={handleSearch} search={search} SetSearch = {SetSearch}/>
+			<Routes className="content-wrap">
+				<Route index element={<Categories />}/> 
+				<Route path='/Categories' element={<Categories />}/>  
+				<Route path='/Recommendation' element={<Recommendation />}/> 
+				<Route path='/About' element={<About />}/> 
+			</Routes>
+			<div className="content-wrap">
+				<MainContent animeList={animeList} />
+			</div>
+		</div>
+	);
 }
 
 export default App;
